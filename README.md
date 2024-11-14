@@ -1,4 +1,6 @@
-# LaLibreriaDeDalmi
+# Números a Letras
+
+la librería es un componente con un input que recibe un número entero entre el 0 y el 999999999999 y tiene un output (resultado) que retorna el número escrito en letras
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.6.
 

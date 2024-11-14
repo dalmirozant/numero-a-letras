@@ -232,10 +232,13 @@ export class NumANomComponent implements AfterViewInit {
   }
 
   correcciones(numeroCompleto: string): string {
-    const numeroCorregido = numeroCompleto
+    let numeroCorregido = numeroCompleto
+      .replace(/\s+/g, ' ')
       .replaceAll('VEINTE Y ', 'VEINTI')
       .replaceAll('UNO MIL', 'UN MIL')
-      .replaceAll('UN MILLONES', 'UN MILLON');
+      .replaceAll('MILLONES MIL', 'MILLONES')
+      .replaceAll('UN MILLONES', 'UN MILLON')
+      .trim();
 
     return numeroCorregido;
   }
