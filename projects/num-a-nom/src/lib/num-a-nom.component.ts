@@ -4,10 +4,11 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  OnDestroy,
   Output,
   ViewChild,
 } from '@angular/core';
-import { fromEvent, map, Observable, of } from 'rxjs';
+import { Subject, fromEvent, map, Observable, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'lib-num-a-nom',
@@ -20,19 +21,30 @@ import { fromEvent, map, Observable, of } from 'rxjs';
   `,
   styles: ``,
 })
-export class NumANomComponent implements AfterViewInit {
+export class NumANomComponent implements AfterViewInit, OnDestroy {
   @ViewChild('numeroInput', { static: false }) numeroInput!: ElementRef;
+  /**
+   * Emite el resultado del número transformado a letras
+   */
   @Output() resultado = new EventEmitter<string>();
   digitos$!: Observable<any>;
+  destroyed$ = new Subject();
 
   ngAfterViewInit(): void {
     this.digitos$ = fromEvent<Event>(
       this.numeroInput.nativeElement,
       'input'
-    ).pipe(map((res: Event) => this.transformarNumeroATexto(res)));
+    ).pipe(
+      takeUntil(this.destroyed$),
+      map((res: Event) => this.transformarNumeroATexto(res))
+    );
     this.digitos$.subscribe({
       next: (res) => this.resultado.emit(res),
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next(true);
   }
 
   transformarNumeroATexto({ target }: Event): string {
