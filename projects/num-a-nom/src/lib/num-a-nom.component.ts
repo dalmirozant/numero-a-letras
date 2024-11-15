@@ -26,7 +26,7 @@ export class NumANomComponent implements AfterViewInit, OnDestroy {
   @Output() resultado = new EventEmitter<string>();
 
   digitos$!: Observable<string>;
-  destroyed$ = new Subject<void>();
+  private destroyed$ = new Subject<void>();
 
   ngAfterViewInit(): void {
     this.inicializarStreamDeEntrada();
@@ -58,7 +58,7 @@ export class NumANomComponent implements AfterViewInit, OnDestroy {
   /**
    * Extrae el valor numérico de un evento de entrada
    */
-  obtenerValorNumerico(event: Event): string {
+  private obtenerValorNumerico(event: Event): string {
     const inputElement = event.target as HTMLInputElement;
     return inputElement.value;
   }
@@ -66,7 +66,7 @@ export class NumANomComponent implements AfterViewInit, OnDestroy {
   /**
    * Transforma un número en texto en función de su valor
    */
-  private transformarNumeroATexto(valorRecibido: string): string {
+  transformarNumeroATexto(valorRecibido: string): string {
     if (valorRecibido.length > 12) return 'Número demasiado grande';
 
     const triosDeNumeros = this.dividirEnTres(valorRecibido);
