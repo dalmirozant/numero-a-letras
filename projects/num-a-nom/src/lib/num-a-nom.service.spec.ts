@@ -26,49 +26,49 @@ describe('NumANomComponent', () => {
     it('debería retornar "UNO" para el número 1', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '1' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('UNO');
     });
 
     it('debería retornar "CERO" o vacío para el número 0', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '0' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('');
     });
 
     it('debería retornar "TRECE" para el número 13', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '13' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('TRECE');
     });
 
     it('debería retornar "VEINTIDOS" para el número 22', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '22' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('VEINTIDOS');
     });
 
     it('debería retornar "CIENTO UNO" para el número 101', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '101' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('CIENTO UNO');
     });
 
     it('debería retornar "DOS MIL" para el número 2000', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '2000' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('DOS MIL');
     });
 
     it('debería retornar "UN MILLON" para el número 1000000', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '1000000' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('UN MILLON');
     });
 
@@ -77,7 +77,7 @@ describe('NumANomComponent', () => {
       Object.defineProperty(evento, 'target', {
         value: { value: '1234567890123' },
       });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('Número demasiado grande');
     });
   });
@@ -116,14 +116,14 @@ describe('NumANomComponent', () => {
     it('debería retornar "UN MIL" para el número 1000', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '1000' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('UN MIL');
     });
 
     it('debería retornar "DOS MILLONES" para el número 2000000', () => {
       const evento = new Event('input');
       Object.defineProperty(evento, 'target', { value: { value: '2000000' } });
-      const resultado = component.transformarNumeroATexto(evento);
+      const resultado = component.obtenerValorNumerico(evento);
       expect(resultado).toBe('DOS MILLONES');
     });
   });

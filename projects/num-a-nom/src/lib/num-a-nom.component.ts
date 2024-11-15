@@ -23,86 +23,127 @@ import { Subject, fromEvent, map, Observable, takeUntil } from 'rxjs';
 })
 export class NumANomComponent implements AfterViewInit, OnDestroy {
   @ViewChild('numeroInput', { static: false }) numeroInput!: ElementRef;
-  /**
-   * Emite el resultado del número transformado a letras
-   */
   @Output() resultado = new EventEmitter<string>();
-  digitos$!: Observable<any>;
-  destroyed$ = new Subject();
+
+  digitos$!: Observable<string>;
+  destroyed$ = new Subject<void>();
 
   ngAfterViewInit(): void {
+    this.inicializarStreamDeEntrada();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
+
+  /**
+   * Inicializa el stream de entrada del número y configura la suscripción
+   */
+  private inicializarStreamDeEntrada(): void {
     this.digitos$ = fromEvent<Event>(
       this.numeroInput.nativeElement,
       'input'
     ).pipe(
       takeUntil(this.destroyed$),
-      map((res: Event) => this.transformarNumeroATexto(res))
+      map((event) => this.obtenerValorNumerico(event)),
+      map((valor) => this.transformarNumeroATexto(valor))
     );
+
     this.digitos$.subscribe({
-      next: (res) => this.resultado.emit(res),
+      next: (resultado) => this.resultado.emit(resultado),
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next(true);
+  /**
+   * Extrae el valor numérico de un evento de entrada
+   */
+  obtenerValorNumerico(event: Event): string {
+    const inputElement = event.target as HTMLInputElement;
+    return inputElement.value;
   }
 
-  transformarNumeroATexto({ target }: Event): string {
-    const valorRecibido = (target as HTMLInputElement).value;
+  /**
+   * Transforma un número en texto en función de su valor
+   */
+  private transformarNumeroATexto(valorRecibido: string): string {
     if (valorRecibido.length > 12) return 'Número demasiado grande';
-    const arrayDeTrios: string[] = this.dividirEnTres(valorRecibido);
-    const arrayDeTriosLetras: string[] = arrayDeTrios.map((trio) =>
-      this.tresNumeros(trio)
-    );
 
-    const arrayDeTriosLength = arrayDeTriosLetras.length;
-    if (arrayDeTriosLength > 1) arrayDeTriosLetras.splice(-1, 0, ' MIL ');
-    if (arrayDeTriosLength > 2) arrayDeTriosLetras.splice(-3, 0, ' MILLONES ');
-    if (arrayDeTriosLength > 3) arrayDeTriosLetras.splice(-5, 0, ' MIL ');
+    const triosDeNumeros = this.dividirEnTres(valorRecibido);
+    const triosConvertidos = this.convertirTriosATexto(triosDeNumeros);
 
-    return this.correcciones(arrayDeTriosLetras.join(''));
+    return this.correcciones(triosConvertidos.join(''));
   }
 
-  dividirEnTres(numero: string | undefined): string[] {
+  /**
+   * Divide un número en grupos de tres dígitos
+   */
+  private dividirEnTres(numero: string): string[] {
     if (!numero) return [];
-    const reversedStr = numero.split('').reverse().join('');
 
-    const array3en3 = reversedStr
+    return numero
+      .split('')
+      .reverse()
+      .join('')
       .match(/.{1,3}/g)!
       .map((chunk) => chunk.split('').reverse().join(''))
       .reverse();
-
-    return array3en3;
   }
 
-  tresNumeros(numero: string): string {
-    if (numero === '100') return 'CIEN';
-    const numeroLength = numero.length;
-    const numeroDeconstruido: {
-      unidades: string;
-      decenas: string;
-      centenas: string;
-    } = {
-      unidades: numero.charAt(numeroLength - 1),
-      decenas: numero.charAt(numeroLength - 2),
-      centenas: numero.charAt(numeroLength - 3),
-    };
-    let unidades: string = '',
-      decenas: string = '',
-      centenas: string = '';
-    if (parseInt(numero.slice(-2)) < 20)
-      decenas = this.ceroAlVeinte(parseInt(numero.slice(-2)));
-    else {
-      unidades = this.ceroAlVeinte(parseInt(numeroDeconstruido.unidades));
-      decenas =
-        unidades === ''
-          ? this.decenas(numeroDeconstruido.decenas)
-          : `${this.decenas(numeroDeconstruido.decenas)} Y ${unidades}`;
-    }
-    if (!!numeroDeconstruido.centenas)
-      centenas = this.centenas(numeroDeconstruido.centenas);
+  /**
+   * Ordena los grupos de tres en tres y agrega unidades
+   */
+  private convertirTriosATexto(trios: string[]): string[] {
+    const triosLetras = trios.map((trio) => this.tresNumeros(trio));
+    const cantidadTrios = triosLetras.length;
 
-    return `${centenas} ${decenas}`;
+    if (cantidadTrios > 1) triosLetras.splice(-1, 0, ' MIL ');
+    if (cantidadTrios > 2) triosLetras.splice(-3, 0, ' MILLONES ');
+    if (cantidadTrios > 3) triosLetras.splice(-5, 0, ' MIL ');
+
+    return triosLetras;
+  }
+
+  /**
+   * Convierte un grupo de tres dígitos a texto
+   */
+  private tresNumeros(numero: string): string {
+    if (numero === '100') return 'CIEN';
+
+    const unidades = this.obtenerUnidades(numero);
+    const decenas = this.obtenerDecenas(numero);
+    const centenas = this.obtenerCentenas(numero);
+
+    return `${centenas} ${decenas}`.trim();
+  }
+
+  /**
+   * Obtiene la representación textual de las unidades
+   */
+  private obtenerUnidades(numero: string): string {
+    const unidades = parseInt(numero.slice(-1), 10);
+    return this.ceroAlVeinte(unidades);
+  }
+
+  /**
+   * Obtiene la representación textual de las decenas
+   */
+  private obtenerDecenas(numero: string): string {
+    const decenasNumero = parseInt(numero.slice(-2), 10);
+    if (decenasNumero < 20) return this.ceroAlVeinte(decenasNumero);
+
+    const unidadesTexto = this.obtenerUnidades(numero);
+    const decenasTexto = this.decenas(numero.charAt(numero.length - 2));
+
+    return unidadesTexto ? `${decenasTexto} Y ${unidadesTexto}` : decenasTexto;
+  }
+
+  /**
+   * Obtiene la representación textual de las centenas
+   */
+  private obtenerCentenas(numero: string): string {
+    const centenas = numero.charAt(numero.length - 3);
+    return this.centenas(centenas);
   }
 
   ceroAlVeinte(numero: number): string {
