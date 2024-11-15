@@ -58,7 +58,7 @@ export class NumANomComponent implements AfterViewInit, OnDestroy {
     const arrayDeTriosLength = arrayDeTriosLetras.length;
     if (arrayDeTriosLength > 1) arrayDeTriosLetras.splice(-1, 0, ' MIL ');
     if (arrayDeTriosLength > 2) arrayDeTriosLetras.splice(-3, 0, ' MILLONES ');
-    if (arrayDeTriosLength > 3) arrayDeTriosLetras.splice(-4, 0, ' MIL ');
+    if (arrayDeTriosLength > 3) arrayDeTriosLetras.splice(-5, 0, ' MIL ');
 
     return this.correcciones(arrayDeTriosLetras.join(''));
   }
